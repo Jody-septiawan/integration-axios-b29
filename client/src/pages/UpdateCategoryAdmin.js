@@ -1,25 +1,65 @@
-import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Button } from "react-bootstrap";
-import { useParams, useHistory } from "react-router";
+import React, { useState, useEffect } from 'react';
+import { Container, Row, Col, Button } from 'react-bootstrap';
+import { useParams, useHistory } from 'react-router';
 
-import NavbarAdmin from "../components/NavbarAdmin";
+import NavbarAdmin from '../components/NavbarAdmin';
 
-import dataCategory from "../fakeData/category";
+import dataCategory from '../fakeData/category';
 
 // Get API config here ...
+import { API } from '../config/api';
 
 export default function UpdateCategoryAdmin() {
-  const title = "Category admin";
-  document.title = "DumbMerch | " + title;
+  const title = 'Category admin';
+  document.title = 'DumbMerch | ' + title;
 
   let history = useHistory();
   const { id } = useParams();
 
   // Create Variabel for store category data here ...
+  const [category, setCategory] = useState({ name: '' });
 
   // Create function get category data by id from database here ...
+  // Fetching category data by id from database
+  const getCategory = async (id) => {
+    try {
+      const response = await API.get('/category/' + id);
+      // Store product data to useState variabel
+      setCategory({ name: response.data.data.name });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getCategory(id);
+  }, []);
 
   // Call function get category data by id with useEffect didMount here ...
+  const handleSubmit = async (e) => {
+    try {
+      e.preventDefault();
+
+      // Configuration
+      const config = {
+        headers: {
+          'Content-type': 'application/json',
+        },
+      };
+
+      // Data body
+      const body = JSON.stringify(category);
+
+      // Insert category data
+      const response = await API.patch('/category/' + id, body, config);
+
+      console.log(response.data);
+
+      history.push('/category-admin');
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handleChange = (e) => {
     setCategory({
